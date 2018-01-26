@@ -12,7 +12,7 @@ class ABCPackage:
     # py2 backwards compatible
     __metaclass__ = ABCMeta
 
-    # backwards compatibility
+    # deprecated in favor of smartupgrade
     def upgrade_if_needed(self, *args, **kwargs):
         return self.smartupgrade(*args, **kwargs)
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .exceptions import PIPError
 from .github import GitHubPackage
 from .pypi import PyPIPackage
 
@@ -40,3 +41,15 @@ class Package(object):
     @classmethod
     def github(cls, *args, **kwargs):
         return GitHubPackage(*args, **kwargs)
+
+
+# deprecated in favor of Package
+class AutoUpgrade(Package):
+
+    def upgrade(self, *args, **kwargs):
+        try:
+            Package.upgrade(self, *args, **kwargs)
+        except PIPError:
+            return False
+        else:
+            return True

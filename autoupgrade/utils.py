@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import re
+from re import compile as r
+
+
+RE_DIGIT = r("(\d+)")
+RE_NONDIGIT = r(r'\D+')
 
 
 def normalize_version(version):
@@ -15,7 +19,7 @@ def normalize_version(version):
         try:
             rv.append(int(x))
         except ValueError:
-            for y in re.split("([0-9]+)", x):
+            for y in RE_DIGIT.split(x):
                 if y == '':
                     continue
                 try:
@@ -29,4 +33,4 @@ def ver_to_tuple(value):
     """
     Convert version like string to a tuple of integers.
     """
-    return tuple(int(_f) for _f in re.split(r'\D+', value) if _f)
+    return tuple(int(_f) for _f in RE_NONDIGIT.split(value) if _f)
