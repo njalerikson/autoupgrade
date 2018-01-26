@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from .exceptions import PIPError
-from .github import GitHubPackage
+
 from .pypi import PyPIPackage
+try:
+    from .github import GitHubPackage
+except ImportError:
+    GitHubPackage = None
 
 
 class Package(object):
-    __preferred = [PyPIPackage, GitHubPackage]
+    __preferred = [PyPIPackage]
 
     def __new__(cls, *args, **kwargs):
         # to keep track of the first error (if there was one)
@@ -38,14 +42,19 @@ class Package(object):
     def pypi(cls, *args, **kwargs):
         return PyPIPackage(*args, **kwargs)
 
-    @classmethod
-    def github(cls, *args, **kwargs):
-        return GitHubPackage(*args, **kwargs)
+
+# only add the GitHubPackage if it was imported properly
+if GitHubPackage is not None:
+    class Package(Package):
+        __preferred = [PyPIPackage, GitHubPackage]
+
+        @classmethod
+        def github(cls, *args, **kwargs):
+            return GitHubPackage(*args, **kwargs)
 
 
 # deprecated in favor of Package
 class AutoUpgrade(Package):
-
     def upgrade(self, *args, **kwargs):
         try:
             Package.upgrade(self, *args, **kwargs)
