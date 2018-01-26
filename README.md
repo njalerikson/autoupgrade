@@ -48,6 +48,11 @@ sure you have already removed the old [AutoUpgrade package]
 (https://pypi.python.org/pypi/autoupgrade) before install this** to avoid an
 installation conflict.
 
+The GitHub features are only accessible if the
+[PyGithub package](https://github.com/PyGithub/PyGithub) is installed.
+
+    pip install pygithub
+
 
 ## API
 
@@ -84,7 +89,7 @@ Basic package class for GitHub, holds one repository.
 - `user` (str) name of the GitHub user/organization that the repo belongs to.
 - `repo` (None, str) if the repo doesn't match the `pkg` name.
 - `authenticate` (tuple) login credentials to login to GitHub (see
-[github package](https://github.com/PyGithub/PyGithub)) this likely will just be
+[PyGithum package](https://github.com/PyGithub/PyGithub)) this likely will just be
 `(<username>, <password>)` or `(<API token>)`
 - `verbose` (bool) print verbose statements.
 
