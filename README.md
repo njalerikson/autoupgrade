@@ -1,27 +1,17 @@
-AutoUpgrade
-===========
-[![PyPI](https://img.shields.io/pypi/v/autoupgrade-ng.svg)]
-(https://pypi.python.org/pypi/autoupgrade-ng)
-[![GitHub issues](https://img.shields.io/github/issues/vuolter/autoupgrade.svg)]
-(https://github.com/vuolter/autoupgrade/issues)
-[![PyPI](https://img.shields.io/pypi/dm/autoupgrade-ng.svg)]
-(https://pypi.python.org/pypi/autoupgrade-ng)
-[![PyPI](https://img.shields.io/pypi/l/autoupgrade-ng.svg)]
-(https://pypi.python.org/pypi/autoupgrade-ng)
-[![PyPI](https://img.shields.io/pypi/format/autoupgrade-ng.svg)]
-(https://pypi.python.org/pypi/autoupgrade-ng)
-[![PyPI](https://img.shields.io/pypi/pyversions/autoupgrade-ng.svg)]
-(https://pypi.python.org/pypi/autoupgrade-ng)
-[![PyPI](https://img.shields.io/pypi/status/autoupgrade-ng.svg)]
-(https://pypi.python.org/pypi/autoupgrade-ng)
-[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/WalterPurcaro.svg?style=social)]
-(https://twitter.com/intent/tweet?text=Wow:&url=%5Bobject%20Object%5D)
+# AutoUpgrade
+[![PyPI](https://img.shields.io/pypi/v/autoupgrade-ng.svg)](https://pypi.python.org/pypi/autoupgrade-ng)
+[![GitHub issues](https://img.shields.io/github/issues/vuolter/autoupgrade.svg)](https://github.com/vuolter/autoupgrade/issues)
+[![PyPI](https://img.shields.io/pypi/dm/autoupgrade-ng.svg)](https://pypi.python.org/pypi/autoupgrade-ng)
+[![PyPI](https://img.shields.io/pypi/l/autoupgrade-ng.svg)](https://pypi.python.org/pypi/autoupgrade-ng)
+[![PyPI](https://img.shields.io/pypi/format/autoupgrade-ng.svg)](https://pypi.python.org/pypi/autoupgrade-ng)
+[![PyPI](https://img.shields.io/pypi/pyversions/autoupgrade-ng.svg)](https://pypi.python.org/pypi/autoupgrade-ng)
+[![PyPI](https://img.shields.io/pypi/status/autoupgrade-ng.svg)](https://pypi.python.org/pypi/autoupgrade-ng)
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/WalterPurcaro.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=%5Bobject%20Object%5D)
 
-Automatic upgrade of PyPI packages.
+Automatic upgrade of PyPI packages or GitHub repos.
 
 
-Table of contents
------------------
+## Table of contents
 
 - [Quick Start](#quick-start)
 - [Installation](#installation)
@@ -29,8 +19,7 @@ Table of contents
 - [Licensing](#licensing)
 
 
-Quick Start
------------
+## Quick Start
 
     from autoupgrade import Package
     Package(<packagename>).smartupgrade()
@@ -50,8 +39,7 @@ Old methods are still supported; you can accomplish the same task calling:
     AutoUpgrade('pip').upgrade_if_needed()
 
 
-Installation
-------------
+## Installation
 
     pip install autoupgrade-ng
 
@@ -61,82 +49,111 @@ sure you have already removed the old [AutoUpgrade package]
 installation conflict.
 
 
-Usage
------
+## API
 
 ### Classes
 
-    class Package(__builtin__.object)
+#### class autoupgrade.abc.ABCPackage(object)
 
-**Decription**: Basic package class, holds one package.
+Abstract class that defines the structure of an `autoupgrade` package.
 
-    class AutoUpgrade(__builtin__.object)
+#### class autoupgrade.pypi.PyPIPackage(autoupgrade.abc.ABCPackage)
 
-**Decription**: Legacy class refering to `Package` one.
-
-
-### Methods
+Basic package class for PyPI, holds one package.
 
     __init__(self, pkg, index=None, verbose=False)
 
-**Decription**: None.
-
 **Arguments**:
+
 - `pkg` (str) name of package.
 - `index` (str) alternative index, if not given default from *pip* will be used.
-Include full index url _(e.g. https://example.com/simple)_.
+Include full index url *(e.g. https://example.com/simple)*.
+- `verbose` (bool) print verbose statements.
 
 **Return**: None.
 
-    check(self)
+#### class autoupgrade.github.GitHubPackage(autoupgrade.abc.ABCPackage)
 
-**Decription**: Check if `pkg` has a later version.
+Basic package class for GitHub, holds one repository.
 
-**Arguments**: None.
-
-**Return**: True if later version exists, else False.
-
-    restart(self)
-
-**Decription**: Restart application with same args as it was started.
-
-**Arguments**: None.
-
-**Return**: None.
-
-    upgrade(self, dependencies=False, prerelease=False, force=False)
-
-**Decription**: Upgrade the package unconditionaly.
+    __init__(self, pkg, user, repo=None, authenticate=(), verbose=False)
 
 **Arguments**:
-- `dependencies` update dependencies if True _(see `pip --no-deps`)_.
-- `prerelease` update to pre-release and development versions.
-- `force` reinstall all packages even if they are already up-to-date.
+
+- `pkg` (str) name of package.
+- `user` (str) name of the GitHub user/organization that the repo belongs to.
+- `repo` (None, str) if the repo doesn't match the `pkg` name.
+- `authenticate` (tuple) login credentials to login to GitHub (see
+[github package](https://github.com/PyGithub/PyGithub)) this likely will just be
+`(<username>, <password>)` or `(<API token>)`
+- `verbose` (bool) print verbose statements.
 
 **Return**: None.
+
+#### class autoupgrade.package.Package(object)
+
+Basic class used to bundle PyPIPackage and GitHubPackage.
+
+    __init__(self, *args, **kwargs)
+
+**Arguments**: provide arguments for `PyPIPackage` **or** `GitHubPackage` and the
+applicable package will be created. Alternatively access the class method
+corresponding to the package type you wish to initialize
+(e.g. `Package.pypi(*args, **kwargs)` versus `Package.github(*args, **kwargs)`.
+
+**Return**: None.
+
+#### class autoupgrde.AutoUpgrade(autoupgrade.package.Package)
+
+**(Deprecated, see Package)**
+
+
+### Methods for PyPIPackage & GitHubPackage
 
     smartupgrade(self, restart=True, dependencies=False, prerelease=False)
 
-**Decription**: Upgrade the package if there is a later version available.
+Upgrade the package if there is a newer version available.
 
 **Arguments**:
+
 - `restart` restart app if True.
-- `dependencies` update dependencies if True _(see `pip --no-deps`)_.
+- `dependencies` update dependencies if True *(see `pip --no-deps`)*.
 - `prerelease` update to pre-release and development versions.
 
 **Return**: None.
 
     upgrade_if_needed(self, restart=True, dependencies=False, prerelease=False)
 
-**Decription**: Legacy method refering to `smartupgrade` one.
+**(Deprecated, see smartupgrade)**
 
-**Arguments**: Same as `smartupgrade`.
+    upgrade(self, dependencies=False, prerelease=False, force=False)
 
-**Return**: Same as `smartupgrade`.
+Upgrade the package unconditionally.
+
+**Arguments**:
+
+- `dependencies` update dependencies if True *(see `pip --no-deps`)*.
+- `prerelease` update to pre-release and development versions.
+- `force` reinstall all packages even if they are already up-to-date.
+
+    check(self)
+
+Check if `pkg` has a newer version.
+
+**Arguments**: None.
+
+**Return**: True if a newer version exists, else False.
+
+    restart(self)
+
+Restart application with same args as it was started.
+
+**Arguments**: None.
+
+**Return**: None.
 
 
-Licensing
----------
+## Licensing
 
 Please refer to the included [LICENSE](/LICENSE.md) for the extended license.
 
